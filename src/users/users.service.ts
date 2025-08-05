@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-
+import { UserRegisterDto } from 'src/users/dto/register-user.dto';
+import { hash } from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
@@ -12,9 +13,19 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  async register(body: any) {
-    const user = await this.usersRepository.create(body);
-    return await this.usersRepository.save(user);
+  async register(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
+    const userExist = await this.findUserByEmail(userRegisterDto.email);
+
+    if (userExist) {
+      throw new HttpException('Email already taken.', HttpStatus.CONFLICT);
+    }
+
+    userRegisterDto.password = await hash(userRegisterDto.password, 10);
+
+    let user = this.usersRepository.create(userRegisterDto);
+    user = await this.usersRepository.save(user);
+    delete user?.password;
+    return user;
   }
 
   create(createUserDto: CreateUserDto) {
@@ -35,5 +46,9 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async findUserByEmail(email: string) {
+    return await this.usersRepository.findOneBy({ email });
   }
 }
