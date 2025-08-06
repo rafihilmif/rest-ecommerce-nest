@@ -13,6 +13,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRegisterDto } from 'src/users/dto/register-user.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UserLoginDto } from 'src/users/dto/login-user-dto';
+import { CurrentUser } from 'src/util/decorator/current-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -44,6 +45,11 @@ export class UsersController {
   @Get()
   async findAll(): Promise<UserEntity[]> {
     return this.usersService.findAll();
+  }
+
+  @Get('profile')
+  getProfile(@CurrentUser() currentUser: UserEntity) {
+    return currentUser;
   }
 
   @Get(':id')
