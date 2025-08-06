@@ -5,7 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserRegisterDto } from 'src/users/dto/register-user.dto';
-import { hash } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
+import { UserLoginDto } from 'src/users/dto/login-user-dto';
+import { sign } from 'jsonwebtoken';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -26,6 +29,28 @@ export class UsersService {
     user = await this.usersRepository.save(user);
     delete user?.password;
     return user;
+  }
+
+  async login(userLoginDto: UserLoginDto) {
+    const userExist = await this.usersRepository
+      .createQueryBuilder('users')
+      .addSelect('users.password')
+      .where('users.email=:email', { email: userLoginDto.email })
+      .getOne();
+
+    if (!userExist) {
+      throw new HttpException('Email not found.', HttpStatus.NOT_FOUND);
+    }
+
+    const matchPassword = await compare(
+      userLoginDto.password,
+      userExist.password,
+    );
+    if (!matchPassword) {
+      throw new HttpException('Password incorrect.', HttpStatus.BAD_REQUEST);
+    }
+    delete userExist.password;
+    return userExist;
   }
 
   create(createUserDto: CreateUserDto) {
@@ -50,5 +75,22 @@ export class UsersService {
 
   async findUserByEmail(email: string) {
     return await this.usersRepository.findOneBy({ email });
+  }
+
+  async accessToken(user: UserEntity): Promise<string> {
+    const jwtSecret = process.env.JWT_KEY_ACCESS;
+
+    if (!jwtSecret) {
+      throw new Error('JWT_KEY_ACCESS environment variable is not defined');
+    }
+
+    return sign(
+      {
+        id: user.id,
+        email: user.email,
+      },
+      jwtSecret,
+      { expiresIn: '30m' },
+    );
   }
 }
