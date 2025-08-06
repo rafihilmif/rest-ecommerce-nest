@@ -42,12 +42,12 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
+  async findAll(): Promise<UserEntity[]> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<UserEntity> {
     return this.usersService.findOne(+id);
   }
 
