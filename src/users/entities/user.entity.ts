@@ -1,3 +1,4 @@
+import { ProductEntity } from '../../products/entities/product.entity';
 import { CategoryEntity } from '../../categories/entities/category.entity';
 import { Role } from '../../util/common/user-roles.enum';
 import {
@@ -35,4 +36,7 @@ export class UserEntity {
 
   @OneToMany(() => CategoryEntity, (category) => category.added_by)
   categories: CategoryEntity[];
+
+  @OneToMany(() => ProductEntity, (product) => product.added_by)
+  products: ProductEntity[];
 }

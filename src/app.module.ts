@@ -5,6 +5,7 @@ import { dataSourceOptions } from 'database/data-source';
 import { UsersModule } from './users/users.module';
 import { CurrentUserMiddleware } from 'src/middleware/current-user.middleware';
 import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { CategoriesModule } from './categories/categories.module';
     ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     CategoriesModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [],

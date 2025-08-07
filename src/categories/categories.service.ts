@@ -33,6 +33,7 @@ export class CategoriesService {
     if (!categories) {
       throw new HttpException('Categories not found!', HttpStatus.NOT_FOUND);
     }
+    
     return categories;
   }
 
@@ -44,12 +45,12 @@ export class CategoriesService {
     if (!categories) {
       throw new HttpException('Categories not found!', HttpStatus.NOT_FOUND);
     }
-    Object.assign(categories, fields);
 
+    Object.assign(categories, fields);
     return await this.categoryRepository.save(categories);
   }
 
-  async remove(id: number): Promise<CategoryEntity> {
+  async delete(id: number): Promise<CategoryEntity> {
     const categories = await this.findOne(id);
 
     if (!categories) {
@@ -57,7 +58,6 @@ export class CategoriesService {
     }
 
     await this.categoryRepository.delete(categories.id);
-
     return categories;
   }
 }
