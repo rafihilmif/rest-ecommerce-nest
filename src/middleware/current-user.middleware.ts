@@ -31,12 +31,11 @@ export class CurrentUserMiddleware implements NestMiddleware {
 
     const jwtSecret = process.env.JWT_KEY_ACCESS;
     if (!jwtSecret) {
-      throw new HttpException('No token provided', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Access denied', HttpStatus.BAD_REQUEST);
     }
 
     try {
       const decode = verify(token, jwtSecret) as { id: string };
-      console.log(decode.id);
       const user = await this.usersService.findOne(Number(decode.id));
 
       req.user = user;

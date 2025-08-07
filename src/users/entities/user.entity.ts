@@ -1,8 +1,10 @@
+import { CategoryEntity } from '../../categories/entities/category.entity';
 import { Role } from '../../util/common/user-roles.enum';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
@@ -30,4 +32,7 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updated_at: Timestamp;
+
+  @OneToMany(() => CategoryEntity, (category) => category.added_by)
+  categories: CategoryEntity[];
 }

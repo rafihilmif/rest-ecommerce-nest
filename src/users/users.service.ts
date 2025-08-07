@@ -90,16 +90,17 @@ export class UsersService {
     const jwtSecret = process.env.JWT_KEY_ACCESS;
 
     if (!jwtSecret) {
-      throw new Error('JWT_KEY_ACCESS environment variable is not defined');
+      throw new HttpException('Access denied', HttpStatus.UNAUTHORIZED);
     }
 
     return sign(
       {
         id: user.id,
         email: user.email,
+        role: user.role,
       },
       jwtSecret,
-      { expiresIn: '30m' },
+      { expiresIn: '24h' },
     );
   }
 }

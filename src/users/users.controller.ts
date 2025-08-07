@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,6 +15,9 @@ import { UserRegisterDto } from 'src/users/dto/register-user.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UserLoginDto } from 'src/users/dto/login-user-dto';
 import { CurrentUser } from 'src/util/decorator/current-user.decorator';
+import { AuthenticGuard } from '@/src/guard/authentic.guard';
+import { AuthorizeGuard } from '@/src/guard/authorize.guard';
+import { AuthorizeRole } from '@/src/util/decorator/authorize-role.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -42,13 +46,16 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @AuthorizeRole('admin')
+  @UseGuards(AuthenticGuard, AuthorizeGuard)
   @Get()
   async findAll(): Promise<UserEntity[]> {
     return this.usersService.findAll();
   }
 
   @Get('profile')
-  getProfile(@CurrentUser() currentUser: UserEntity) {
+  @UseGuards(AuthenticGuard)
+  async getProfile(@CurrentUser() currentUser: UserEntity) {
     return currentUser;
   }
 
